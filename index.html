@@ -1,628 +1,862 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>訓員停車點分配統計系統</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            background: #f9f9f9;
-        }
-        
-        .section h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 5px;
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        
-        .input-group input {
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        .input-group input:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
-        
-        .btn {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        
-        .btn:hover {
-            background: #45a049;
-        }
-        
-        .btn-danger {
-            background: #f44336;
-        }
-        
-        .btn-danger:hover {
-            background: #d32f2f;
-        }
-        
-        .btn-small {
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-        
-        .items-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .item-tag {
-            background: #e3f2fd;
-            border: 1px solid #2196F3;
-            border-radius: 20px;
-            padding: 8px 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-        
-        .item-tag .remove-btn {
-            background: #f44336;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .stations-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .station-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .station-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .station-name {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .station-amount {
-            background: #4CAF50;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-weight: bold;
-        }
-        
-        .trainee-checkboxes {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-        }
-        
-        .trainee-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-        
-        .trainee-checkbox:hover {
-            background: #f0f8f0;
-        }
-        
-        .trainee-checkbox input[type="checkbox"] {
-            transform: scale(1.2);
-        }
-        
-        .trainee-checkbox label {
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .statistics {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        
-        .statistics h2 {
-            margin-bottom: 20px;
-            border: none;
-            color: white;
-        }
-        
-        .stats-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-card {
-            background: rgba(255,255,255,0.2);
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-        }
-        
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-        
-        .detailed-stats {
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-        }
-        
-        .detailed-stats h3 {
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-        
-        .station-stat {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            margin-bottom: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-        }
-        
-        .station-stat-info {
-            flex: 1;
-        }
-        
-        .station-stat-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .station-stat-trainees {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-        
-        .station-stat-amount {
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-        
-        .empty-state {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            padding: 40px;
-        }
-        
-        @media (max-width: 768px) {
-            .stations-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .input-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .stats-summary {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>專車小幫手</title>
+  <style>
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+      
+      body {
+          font-family: 'Microsoft JhengHei', Arial, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          min-height: 100vh;
+          padding: 20px;
+      }
+      
+      .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 15px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+          overflow: hidden;
+      }
+      
+      .header {
+          background: linear-gradient(45deg, #4CAF50, #45a049);
+          color: white;
+          padding: 30px;
+          text-align: center;
+      }
+      
+      .header h1 {
+          font-size: 2.5em;
+          margin-bottom: 10px;
+      }
+      
+      .content {
+          padding: 30px;
+      }
+      
+      .section {
+          margin-bottom: 30px;
+          padding: 20px;
+          border: 2px solid #e0e0e0;
+          border-radius: 10px;
+          background: #f9f9f9;
+      }
+      
+      .section h2 {
+          color: #333;
+          margin-bottom: 15px;
+          font-size: 1.3em;
+          border-bottom: 2px solid #4CAF50;
+          padding-bottom: 5px;
+      }
+      
+      .tab-buttons {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 20px;
+      }
+      
+      .tab-btn {
+          padding: 10px 20px;
+          border: 2px solid #4CAF50;
+          background: white;
+          color: #4CAF50;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: all 0.3s;
+      }
+      
+      .tab-btn.active {
+          background: #4CAF50;
+          color: white;
+      }
+      
+      .tab-btn:hover {
+          background: #45a049;
+          color: white;
+          border-color: #45a049;
+      }
+      
+      .tab-content {
+          display: none;
+      }
+      
+      .tab-content.active {
+          display: block;
+      }
+      
+      .input-group {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          flex-wrap: wrap;
+          margin-bottom: 15px;
+      }
+      
+      .input-group input {
+          padding: 10px;
+          border: 2px solid #ddd;
+          border-radius: 5px;
+          font-size: 16px;
+      }
+      
+      .input-group input:focus {
+          border-color: #4CAF50;
+          outline: none;
+      }
+      
+      .batch-input-group {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 15px;
+          margin-bottom: 15px;
+      }
+      
+      .input-field {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+      }
+      
+      .input-field label {
+          font-size: 14px;
+          color: #555;
+          font-weight: bold;
+      }
+      
+      .input-field input {
+          padding: 10px;
+          border: 2px solid #ddd;
+          border-radius: 5px;
+          font-size: 16px;
+      }
+      
+      .input-field input:focus {
+          border-color: #4CAF50;
+          outline: none;
+      }
+      
+      .help-text {
+          background: #e8f5e9;
+          border-left: 4px solid #4CAF50;
+          padding: 12px;
+          margin-bottom: 15px;
+          border-radius: 5px;
+          font-size: 14px;
+          color: #2e7d32;
+      }
+      
+      .help-text strong {
+          display: block;
+          margin-bottom: 5px;
+      }
+      
+      .btn {
+          background: #4CAF50;
+          color: white;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background 0.3s;
+      }
+      
+      .btn:hover {
+          background: #45a049;
+      }
+      
+      .btn-danger {
+          background: #f44336;
+      }
+      
+      .btn-danger:hover {
+          background: #d32f2f;
+      }
+      
+      .btn-small {
+          padding: 5px 10px;
+          font-size: 12px;
+      }
+      
+      .items-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-top: 15px;
+      }
+      
+      .item-tag {
+          background: #e3f2fd;
+          border: 1px solid #2196F3;
+          border-radius: 20px;
+          padding: 8px 15px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+      }
+      
+      .item-tag .remove-btn {
+          background: #f44336;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          cursor: pointer;
+          font-size: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+      
+      .stations-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+          gap: 20px;
+          margin-top: 20px;
+      }
+      
+      .station-card {
+          background: white;
+          border: 2px solid #e0e0e0;
+          border-radius: 10px;
+          padding: 20px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      
+      .station-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 15px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid #eee;
+      }
+      
+      .station-name {
+          font-size: 1.2em;
+          font-weight: bold;
+          color: #333;
+      }
+      
+      .station-amount {
+          background: #4CAF50;
+          color: white;
+          padding: 5px 12px;
+          border-radius: 15px;
+          font-weight: bold;
+      }
+      
+      .trainee-checkboxes {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          gap: 10px;
+      }
+      
+      .trainee-checkbox {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px;
+          border-radius: 5px;
+          transition: background 0.3s;
+      }
+      
+      .trainee-checkbox:hover {
+          background: #f0f8f0;
+      }
+      
+      .trainee-checkbox.disabled {
+          opacity: 0.4;
+          pointer-events: none;
+      }
+      
+      .trainee-checkbox input[type="checkbox"] {
+          transform: scale(1.2);
+      }
+      
+      .trainee-checkbox input[type="checkbox"]:disabled {
+          cursor: not-allowed;
+      }
+      
+      .trainee-checkbox label {
+          cursor: pointer;
+          font-size: 14px;
+      }
+      
+      .statistics {
+          background: linear-gradient(45deg, #2196F3, #1976D2);
+          color: white;
+          padding: 20px;
+          border-radius: 10px;
+      }
+      
+      .statistics h2 {
+          margin-bottom: 20px;
+          border: none;
+          color: white;
+      }
+      
+      .stats-summary {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 15px;
+          margin-bottom: 20px;
+      }
+      
+      .stat-card {
+          background: rgba(255,255,255,0.2);
+          padding: 15px;
+          border-radius: 8px;
+          text-align: center;
+          backdrop-filter: blur(10px);
+      }
+      
+      .stat-value {
+          font-size: 2em;
+          font-weight: bold;
+          margin-bottom: 5px;
+      }
+      
+      .stat-label {
+          font-size: 0.9em;
+          opacity: 0.9;
+      }
+      
+      .detailed-stats {
+          background: rgba(255,255,255,0.1);
+          border-radius: 8px;
+          padding: 15px;
+          margin-top: 15px;
+      }
+      
+      .detailed-stats h3 {
+          margin-bottom: 15px;
+          font-size: 1.2em;
+      }
+      
+      .station-stat {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px;
+          margin-bottom: 8px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 5px;
+      }
+      
+      .station-stat-info {
+          flex: 1;
+      }
+      
+      .station-stat-name {
+          font-weight: bold;
+          margin-bottom: 5px;
+      }
+      
+      .station-stat-trainees {
+          font-size: 0.9em;
+          opacity: 0.9;
+      }
+      
+      .station-stat-amount {
+          font-size: 1.2em;
+          font-weight: bold;
+      }
+      
+      .empty-state {
+          text-align: center;
+          color: #666;
+          font-style: italic;
+          padding: 40px;
+      }
+      
+      @media (max-width: 768px) {
+          .stations-container {
+              grid-template-columns: 1fr;
+          }
+          
+          .input-group {
+              flex-direction: column;
+              align-items: stretch;
+          }
+          
+          .stats-summary {
+              grid-template-columns: 1fr;
+          }
+          
+          .batch-input-group {
+              grid-template-columns: 1fr;
+          }
+      }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🚌 訓員停車點分配統計系統</h1>
-            <p>設定訓員編號和下車點，分配訓員到各停車點並統計金額</p>
-        </div>
-        
-        <div class="content">
-            <!-- 訓員編號設定 -->
-            <div class="section">
-                <h2>👥 訓員編號設定</h2>
-                <div class="input-group">
-                    <input type="text" id="traineeInput" placeholder="輸入訓員編號 (例如: T001)" maxlength="20">
-                    <button class="btn" onclick="addTrainee()">新增訓員</button>
-                    <button class="btn btn-danger" onclick="clearTrainees()">清除全部</button>
-                </div>
-                <div class="items-list" id="traineesList">
-                    <!-- 訓員列表將在這裡顯示 -->
-                </div>
-            </div>
-            
-            <!-- 下車點及金額設定 -->
-            <div class="section">
-                <h2>🚏 下車點及金額設定</h2>
-                <div class="input-group">
-                    <input type="text" id="stationInput" placeholder="輸入停車點名稱 (例如: 台北車站)" maxlength="30">
-                    <input type="number" id="amountInput" placeholder="金額" min="0" step="0.01">
-                    <button class="btn" onclick="addStation()">新增停車點</button>
-                    <button class="btn btn-danger" onclick="clearStations()">清除全部</button>
-                </div>
-                <div class="items-list" id="stationsList">
-                    <!-- 停車點列表將在這裡顯示 -->
-                </div>
-            </div>
-            
-            <!-- 訓員分配區域 -->
-            <div class="section">
-                <h2>🎯 訓員分配到停車點</h2>
-                <div id="assignmentContainer" class="stations-container">
-                    <!-- 分配界面將在這裡生成 -->
-                </div>
-            </div>
-            
-            <!-- 統計結果 -->
-            <div class="section statistics">
-                <h2>📊 統計結果</h2>
-                <div class="stats-summary">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalTrainees">0</div>
-                        <div class="stat-label">總訓員數</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalStations">0</div>
-                        <div class="stat-label">總停車點數</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalAmount">$0</div>
-                        <div class="stat-label">總金額</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="assignedTrainees">0</div>
-                        <div class="stat-label">已分配訓員</div>
-                    </div>
-                </div>
-                
-                <div class="detailed-stats">
-                    <h3>📋 各停車點詳細統計</h3>
-                    <div id="detailedStats">
-                        <!-- 詳細統計將在這裡顯示 -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        let trainees = [];
-        let stations = [];
-        let assignments = {}; // {stationId: [traineeIds]}
-        
-        // 訓員管理
-        function addTrainee() {
-            const input = document.getElementById('traineeInput');
-            const traineeId = input.value.trim();
-            
-            if (!traineeId) {
-                alert('請輸入訓員編號！');
-                return;
-            }
-            
-            if (trainees.some(t => t.id === traineeId)) {
-                alert('此訓員編號已存在！');
-                return;
-            }
-            
-            trainees.push({ id: traineeId });
-            input.value = '';
-            updateTraineesList();
-            updateAssignmentInterface();
-            updateStatistics();
-        }
-        
-        function removeTrainee(traineeId) {
-            trainees = trainees.filter(t => t.id !== traineeId);
-            // 從所有分配中移除此訓員
-            Object.keys(assignments).forEach(stationId => {
-                assignments[stationId] = assignments[stationId].filter(id => id !== traineeId);
-            });
-            updateTraineesList();
-            updateAssignmentInterface();
-            updateStatistics();
-        }
-        
-        function clearTrainees() {
-            if (trainees.length === 0) return;
-            if (confirm('確定要清除所有訓員嗎？這將同時清除所有分配記錄。')) {
-                trainees = [];
-                assignments = {};
-                updateTraineesList();
-                updateAssignmentInterface();
-                updateStatistics();
-            }
-        }
-        
-        function updateTraineesList() {
-            const container = document.getElementById('traineesList');
-            if (trainees.length === 0) {
-                container.innerHTML = '<div class="empty-state">尚未新增任何訓員</div>';
-                return;
-            }
-            
-            container.innerHTML = trainees.map(trainee => `
-                <div class="item-tag">
-                    <span>${trainee.id}</span>
-                    <button class="remove-btn" onclick="removeTrainee('${trainee.id}')" title="移除">×</button>
-                </div>
-            `).join('');
-        }
-        
-        // 停車點管理
-        function addStation() {
-            const nameInput = document.getElementById('stationInput');
-            const amountInput = document.getElementById('amountInput');
-            const name = nameInput.value.trim();
-            const amount = parseFloat(amountInput.value) || 0;
-            
-            if (!name) {
-                alert('請輸入停車點名稱！');
-                return;
-            }
-            
-            if (stations.some(s => s.name === name)) {
-                alert('此停車點已存在！');
-                return;
-            }
-            
-            const stationId = 'station_' + Date.now();
-            stations.push({ id: stationId, name: name, amount: amount });
-            assignments[stationId] = [];
-            
-            nameInput.value = '';
-            amountInput.value = '';
-            updateStationsList();
-            updateAssignmentInterface();
-            updateStatistics();
-        }
-        
-        function removeStation(stationId) {
-            stations = stations.filter(s => s.id !== stationId);
-            delete assignments[stationId];
-            updateStationsList();
-            updateAssignmentInterface();
-            updateStatistics();
-        }
-        
-        function clearStations() {
-            if (stations.length === 0) return;
-            if (confirm('確定要清除所有停車點嗎？這將同時清除所有分配記錄。')) {
-                stations = [];
-                assignments = {};
-                updateStationsList();
-                updateAssignmentInterface();
-                updateStatistics();
-            }
-        }
-        
-        function updateStationsList() {
-            const container = document.getElementById('stationsList');
-            if (stations.length === 0) {
-                container.innerHTML = '<div class="empty-state">尚未新增任何停車點</div>';
-                return;
-            }
-            
-            container.innerHTML = stations.map(station => `
-                <div class="item-tag">
-                    <span>${station.name} - $${station.amount.toLocaleString('zh-TW', {minimumFractionDigits: 2})}</span>
-                    <button class="remove-btn" onclick="removeStation('${station.id}')" title="移除">×</button>
-                </div>
-            `).join('');
-        }
-        
-        // 分配界面
-        function updateAssignmentInterface() {
-            const container = document.getElementById('assignmentContainer');
-            
-            if (stations.length === 0 || trainees.length === 0) {
-                container.innerHTML = '<div class="empty-state">請先新增訓員和停車點</div>';
-                return;
-            }
-            
-            container.innerHTML = stations.map(station => `
-                <div class="station-card">
-                    <div class="station-header">
-                        <div class="station-name">${station.name}</div>
-                        <div class="station-amount">$${station.amount.toLocaleString('zh-TW', {minimumFractionDigits: 2})}</div>
-                    </div>
-                    <div class="trainee-checkboxes">
-                        ${trainees.map(trainee => `
-                            <div class="trainee-checkbox">
-                                <input type="checkbox" 
-                                       id="assign_${station.id}_${trainee.id}"
-                                       ${assignments[station.id].includes(trainee.id) ? 'checked' : ''}
-                                       onchange="toggleAssignment('${station.id}', '${trainee.id}')">
-                                <label for="assign_${station.id}_${trainee.id}">${trainee.id}</label>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function toggleAssignment(stationId, traineeId) {
-            if (!assignments[stationId]) {
-                assignments[stationId] = [];
-            }
-            
-            const index = assignments[stationId].indexOf(traineeId);
-            if (index > -1) {
-                assignments[stationId].splice(index, 1);
-            } else {
-                assignments[stationId].push(traineeId);
-            }
-            
-            updateStatistics();
-        }
-        
-        // 統計更新
-        function updateStatistics() {
-            // 基本統計
-            document.getElementById('totalTrainees').textContent = trainees.length;
-            document.getElementById('totalStations').textContent = stations.length;
-            
-            const totalAmount = stations.reduce((sum, station) => {
-                const assignedCount = assignments[station.id] ? assignments[station.id].length : 0;
-                return sum + (station.amount * assignedCount);
-            }, 0);
-            document.getElementById('totalAmount').textContent = `$${totalAmount.toLocaleString('zh-TW', {minimumFractionDigits: 2})}`;
-            
-            const assignedTraineeIds = new Set();
-            Object.values(assignments).forEach(traineeList => {
-                traineeList.forEach(traineeId => assignedTraineeIds.add(traineeId));
-            });
-            document.getElementById('assignedTrainees').textContent = assignedTraineeIds.size;
-            
-            // 詳細統計
-            const detailedContainer = document.getElementById('detailedStats');
-            if (stations.length === 0) {
-                detailedContainer.innerHTML = '<div class="empty-state">尚無統計資料</div>';
-                return;
-            }
-            
-            detailedContainer.innerHTML = stations.map(station => {
-                const assignedTrainees = assignments[station.id] || [];
-                const stationTotal = station.amount * assignedTrainees.length;
-                
-                return `
-                    <div class="station-stat">
-                        <div class="station-stat-info">
-                            <div class="station-stat-name">${station.name}</div>
-                            <div class="station-stat-trainees">
-                                ${assignedTrainees.length > 0 ? 
-                                  `訓員: ${assignedTrainees.join(', ')} (${assignedTrainees.length}人)` : 
-                                  '尚未分配訓員'}
-                            </div>
-                        </div>
-                        <div class="station-stat-amount">$${stationTotal.toLocaleString('zh-TW', {minimumFractionDigits: 2})}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        // 鍵盤事件處理
-        document.getElementById('traineeInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addTrainee();
-            }
-        });
-        
-        document.getElementById('stationInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('amountInput').focus();
-            }
-        });
-        
-        document.getElementById('amountInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addStation();
-            }
-        });
-        
-        // 初始化
-        updateTraineesList();
-        updateStationsList();
-        updateAssignmentInterface();
-        updateStatistics();
-    </script>
+  <div class="container">
+      <div class="header">
+          <h1>🚌 專車小幫手</h1>
+          <p>設定訓員編號和下車點，分配訓員到各停車點並統計金額</p>
+      </div>
+      
+      <div class="content">
+          <!-- 訓員編號設定 -->
+          <div class="section">
+              <h2>👥 訓員編號設定</h2>
+              
+              <!-- 切換標籤 -->
+              <div class="tab-buttons">
+                  <button class="tab-btn active" onclick="switchTab('single')">單筆新增</button>
+                  <button class="tab-btn" onclick="switchTab('batch')">批次新增</button>
+              </div>
+              
+              <!-- 單筆新增 -->
+              <div id="singleTab" class="tab-content active">
+                  <div class="input-group">
+                      <input type="text" id="traineeInput" placeholder="輸入訓員編號 (例如: 001)" maxlength="20">
+                      <button class="btn" onclick="addTrainee()">新增訓員</button>
+                      <button class="btn btn-danger" onclick="clearTrainees()">清除全部</button>
+                  </div>
+              </div>
+              
+              <!-- 批次新增 -->
+              <div id="batchTab" class="tab-content">
+                  <div class="help-text">
+                      <strong>💡 批次新增說明：</strong>
+                      <div>• 起始編號：開始的數字（例如：1）</div>
+                      <div>• 結束編號：結束的數字（例如：50）</div>
+                      <div>• 自動補零為三位數（例如：001, 002, 003...）</div>
+                      <div>• 範例：起始「1」+ 結束「10」= 001, 002, 003...010</div>
+                  </div>
+                  
+                  <div class="batch-input-group">
+                      <div class="input-field">
+                          <label>起始編號</label>
+                          <input type="number" id="batchStart" placeholder="例如: 1" min="0">
+                      </div>
+                      <div class="input-field">
+                          <label>結束編號</label>
+                          <input type="number" id="batchEnd" placeholder="例如: 50" min="0">
+                      </div>
+                  </div>
+                  
+                  <div class="input-group">
+                      <button class="btn" onclick="addBatchTrainees()">批次新增訓員</button>
+                      <button class="btn btn-danger" onclick="clearTrainees()">清除全部</button>
+                  </div>
+              </div>
+              
+              <div class="items-list" id="traineesList">
+                  <!-- 訓員列表將在這裡顯示 -->
+              </div>
+          </div>
+          
+          <!-- 下車點及金額設定 -->
+          <div class="section">
+              <h2>🚏 下車點及金額設定</h2>
+              <div class="input-group">
+                  <input type="text" id="stationInput" placeholder="輸入停車點名稱 (例如: 台北車站)" maxlength="30">
+                  <input type="number" id="amountInput" placeholder="金額" min="0" step="0.01">
+                  <button class="btn" onclick="addStation()">新增停車點</button>
+                  <button class="btn btn-danger" onclick="clearStations()">清除全部</button>
+              </div>
+              <div class="items-list" id="stationsList">
+                  <!-- 停車點列表將在這裡顯示 -->
+              </div>
+          </div>
+          
+          <!-- 訓員分配區域 -->
+          <div class="section">
+              <h2>🎯 訓員分配到停車點</h2>
+              <div id="assignmentContainer" class="stations-container">
+                  <!-- 分配界面將在這裡生成 -->
+              </div>
+          </div>
+          
+          <!-- 統計結果 -->
+          <div class="section statistics">
+              <h2>📊 統計結果</h2>
+              <div class="stats-summary">
+                  <div class="stat-card">
+                      <div class="stat-value" id="totalTrainees">0</div>
+                      <div class="stat-label">總訓員數</div>
+                  </div>
+                  <div class="stat-card">
+                      <div class="stat-value" id="totalStations">0</div>
+                      <div class="stat-label">總停車點數</div>
+                  </div>
+                  <div class="stat-card">
+                      <div class="stat-value" id="totalAmount">$0</div>
+                      <div class="stat-label">總金額</div>
+                  </div>
+                  <div class="stat-card">
+                      <div class="stat-value" id="assignedTrainees">0</div>
+                      <div class="stat-label">已分配訓員</div>
+                  </div>
+              </div>
+              
+              <div class="detailed-stats">
+                  <h3>📋 各停車點詳細統計</h3>
+                  <div id="detailedStats">
+                      <!-- 詳細統計將在這裡顯示 -->
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  <script>
+      let trainees = [];
+      let stations = [];
+      let assignments = {}; // {stationId: [traineeIds]}
+      
+      // 標籤切換
+      function switchTab(tabName) {
+          // 更新按鈕狀態
+          document.querySelectorAll('.tab-btn').forEach(btn => {
+              btn.classList.remove('active');
+          });
+          event.target.classList.add('active');
+          
+          // 更新內容顯示
+          document.querySelectorAll('.tab-content').forEach(content => {
+              content.classList.remove('active');
+          });
+          
+          if (tabName === 'single') {
+              document.getElementById('singleTab').classList.add('active');
+          } else {
+              document.getElementById('batchTab').classList.add('active');
+          }
+      }
+      
+      // 訓員管理 - 單筆新增
+      function addTrainee() {
+          const input = document.getElementById('traineeInput');
+          const traineeId = input.value.trim();
+          
+          if (!traineeId) {
+              alert('請輸入訓員編號！');
+              return;
+          }
+          
+          if (trainees.some(t => t.id === traineeId)) {
+              alert('此訓員編號已存在！');
+              return;
+          }
+          
+          trainees.push({ id: traineeId });
+          input.value = '';
+          updateTraineesList();
+          updateAssignmentInterface();
+          updateStatistics();
+      }
+      
+      // 訓員管理 - 批次新增
+      function addBatchTrainees() {
+          const start = parseInt(document.getElementById('batchStart').value);
+          const end = parseInt(document.getElementById('batchEnd').value);
+          
+          // 驗證輸入
+          if (isNaN(start) || isNaN(end)) {
+              alert('請輸入有效的起始和結束編號！');
+              return;
+          }
+          
+          if (start > end) {
+              alert('起始編號不能大於結束編號！');
+              return;
+          }
+          
+          if (end - start > 1000) {
+              alert('一次最多只能新增 1000 個訓員！');
+              return;
+          }
+          
+          let addedCount = 0;
+          let duplicateCount = 0;
+          
+          for (let i = start; i <= end; i++) {
+              const traineeId = String(i).padStart(3, '0');
+              
+              if (!trainees.some(t => t.id === traineeId)) {
+                  trainees.push({ id: traineeId });
+                  addedCount++;
+              } else {
+                  duplicateCount++;
+              }
+          }
+          
+          // 顯示結果
+          let message = `成功新增 ${addedCount} 個訓員！`;
+          if (duplicateCount > 0) {
+              message += `\n跳過 ${duplicateCount} 個重複的訓員編號。`;
+          }
+          alert(message);
+          
+          // 清空輸入
+          document.getElementById('batchStart').value = '';
+          document.getElementById('batchEnd').value = '';
+          
+          updateTraineesList();
+          updateAssignmentInterface();
+          updateStatistics();
+      }
+      
+      function removeTrainee(traineeId) {
+          trainees = trainees.filter(t => t.id !== traineeId);
+          // 從所有分配中移除此訓員
+          Object.keys(assignments).forEach(stationId => {
+              assignments[stationId] = assignments[stationId].filter(id => id !== traineeId);
+          });
+          updateTraineesList();
+          updateAssignmentInterface();
+          updateStatistics();
+      }
+      
+      function clearTrainees() {
+          if (trainees.length === 0) return;
+          if (confirm('確定要清除所有訓員嗎？這將同時清除所有分配記錄。')) {
+              trainees = [];
+              assignments = {};
+              updateTraineesList();
+              updateAssignmentInterface();
+              updateStatistics();
+          }
+      }
+      
+      function updateTraineesList() {
+          const container = document.getElementById('traineesList');
+          if (trainees.length === 0) {
+              container.innerHTML = '<div class="empty-state">尚未新增任何訓員</div>';
+              return;
+          }
+          
+          container.innerHTML = trainees.map(trainee => `
+              <div class="item-tag">
+                  <span>${trainee.id}</span>
+                  <button class="remove-btn" onclick="removeTrainee('${trainee.id}')" title="移除">×</button>
+              </div>
+          `).join('');
+      }
+      
+      // 停車點管理
+      function addStation() {
+          const nameInput = document.getElementById('stationInput');
+          const amountInput = document.getElementById('amountInput');
+          const name = nameInput.value.trim();
+          const amount = parseFloat(amountInput.value) || 0;
+          
+          if (!name) {
+              alert('請輸入停車點名稱！');
+              return;
+          }
+          
+          if (stations.some(s => s.name === name)) {
+              alert('此停車點已存在！');
+              return;
+          }
+          
+          const stationId = 'station_' + Date.now();
+          stations.push({ id: stationId, name: name, amount: amount });
+          assignments[stationId] = [];
+          
+          nameInput.value = '';
+          amountInput.value = '';
+          updateStationsList();
+          updateAssignmentInterface();
+          updateStatistics();
+      }
+      
+      function removeStation(stationId) {
+          stations = stations.filter(s => s.id !== stationId);
+          delete assignments[stationId];
+          updateStationsList();
+          updateAssignmentInterface();
+          updateStatistics();
+      }
+      
+      function clearStations() {
+          if (stations.length === 0) return;
+          if (confirm('確定要清除所有停車點嗎？這將同時清除所有分配記錄。')) {
+              stations = [];
+              assignments = {};
+              updateStationsList();
+              updateAssignmentInterface();
+              updateStatistics();
+          }
+      }
+      
+      function updateStationsList() {
+          const container = document.getElementById('stationsList');
+          if (stations.length === 0) {
+              container.innerHTML = '<div class="empty-state">尚未新增任何停車點</div>';
+              return;
+          }
+          
+          container.innerHTML = stations.map(station => `
+              <div class="item-tag">
+                  <span>${station.name} - $${station.amount.toLocaleString('zh-TW', {minimumFractionDigits: 2})}</span>
+                  <button class="remove-btn" onclick="removeStation('${station.id}')" title="移除">×</button>
+              </div>
+          `).join('');
+      }
+      
+      // 獲取已分配的訓員列表（在當前停車點之前）
+      function getAssignedTraineesBeforeStation(currentStationId) {
+          const assignedTrainees = new Set();
+          const currentIndex = stations.findIndex(s => s.id === currentStationId);
+          
+          // 遍歷當前停車點之前的所有停車點
+          for (let i = 0; i < currentIndex; i++) {
+              const stationId = stations[i].id;
+              if (assignments[stationId]) {
+                  assignments[stationId].forEach(traineeId => {
+                      assignedTrainees.add(traineeId);
+                  });
+              }
+          }
+          
+          return assignedTrainees;
+      }
+      
+      // 分配界面
+      function updateAssignmentInterface() {
+          const container = document.getElementById('assignmentContainer');
+          
+          if (stations.length === 0 || trainees.length === 0) {
+              container.innerHTML = '<div class="empty-state">請先新增訓員和停車點</div>';
+              return;
+          }
+          
+          container.innerHTML = stations.map(station => {
+              const assignedBefore = getAssignedTraineesBeforeStation(station.id);
+              
+              return `
+                  <div class="station-card">
+                      <div class="station-header">
+                          <div class="station-name">${station.name}</div>
+                          <div class="station-amount">$${station.amount.toLocaleString('zh-TW', {minimumFractionDigits: 2})}</div>
+                      </div>
+                      <div class="trainee-checkboxes">
+                          ${trainees.map(trainee => {
+                              const isAssignedBefore = assignedBefore.has(trainee.id);
+                              const isChecked = assignments[station.id].includes(trainee.id);
+                              
+                              return `
+                                  <div class="trainee-checkbox ${isAssignedBefore ? 'disabled' : ''}">
+                                      <input type="checkbox" 
+                                             id="assign_${station.id}_${trainee.id}"
+                                             ${isChecked ? 'checked' : ''}
+                                             ${isAssignedBefore ? 'disabled' : ''}
+                                             onchange="toggleAssignment('${station.id}', '${trainee.id}')">
+                                      <label for="assign_${station.id}_${trainee.id}">${trainee.id}</label>
+                                  </div>
+                              `;
+                          }).join('')}
+                      </div>
+                  </div>
+              `;
+          }).join('');
+      }
+      
+      function toggleAssignment(stationId, traineeId) {
+          if (!assignments[stationId]) {
+              assignments[stationId] = [];
+          }
+          
+          const index = assignments[stationId].indexOf(traineeId);
+          if (index > -1) {
+              assignments[stationId].splice(index, 1);
+          } else {
+              assignments[stationId].push(traineeId);
+          }
+          
+          // 重新渲染界面以更新後續停車點的可選狀態
+          updateAssignmentInterface();
+          updateStatistics();
+      }
+      
+      // 統計更新
+      function updateStatistics() {
+          // 基本統計
+          document.getElementById('totalTrainees').textContent = trainees.length;
+          document.getElementById('totalStations').textContent = stations.length;
+          
+          const totalAmount = stations.reduce((sum, station) => {
+              const assignedCount = assignments[station.id] ? assignments[station.id].length : 0;
+              return sum + (station.amount * assignedCount);
+          }, 0);
+          document.getElementById('totalAmount').textContent = `$${totalAmount.toLocaleString('zh-TW', {minimumFractionDigits: 2})}`;
+          
+          const assignedTraineeIds = new Set();
+          Object.values(assignments).forEach(traineeList => {
+              traineeList.forEach(traineeId => assignedTraineeIds.add(traineeId));
+          });
+          document.getElementById('assignedTrainees').textContent = assignedTraineeIds.size;
+          
+          // 詳細統計
+          const detailedContainer = document.getElementById('detailedStats');
+          if (stations.length === 0) {
+              detailedContainer.innerHTML = '<div class="empty-state">尚無統計資料</div>';
+              return;
+          }
+          
+          detailedContainer.innerHTML = stations.map(station => {
+              const assignedTrainees = assignments[station.id] || [];
+              const stationTotal = station.amount * assignedTrainees.length;
+              
+              return `
+                  <div class="station-stat">
+                      <div class="station-stat-info">
+                          <div class="station-stat-name">${station.name}</div>
+                          <div class="station-stat-trainees">
+                              ${assignedTrainees.length > 0 ? 
+                                `訓員: ${assignedTrainees.join(', ')} (${assignedTrainees.length}人)` : 
+                                '尚未分配訓員'}
+                          </div>
+                      </div>
+                      <div class="station-stat-amount">$${stationTotal.toLocaleString('zh-TW', {minimumFractionDigits: 2})}</div>
+                  </div>
+              `;
+          }).join('');
+      }
+      
+      // 鍵盤事件處理
+      document.getElementById('traineeInput').addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+              addTrainee();
+          }
+      });
+      
+      document.getElementById('stationInput').addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+              document.getElementById('amountInput').focus();
+          }
+      });
+      
+      document.getElementById('amountInput').addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+              addStation();
+          }
+      });
+      
+      // 初始化
+      updateTraineesList();
+      updateStationsList();
+      updateAssignmentInterface();
+      updateStatistics();
+  </script>
 </body>
 </html>
